@@ -6,6 +6,7 @@ import ReadOnlyRow from "./components/ReadOnlyRow";
 import EditRow from "./components/EditRow";
 
 function App() {
+  const [search, setSearch] = useState("");
   const [order, setOrder] = useState("ASC");
   const sorting = (col) => {
     if (order === "ASC") {
@@ -113,6 +114,15 @@ function App() {
 
   return (
     <div className="app-container">
+      <input
+        type="text"
+        placeholder="Search by Full Name or Phone Number..."
+        className="form-control"
+        style={{ marginTop: 10, marginBottom: 10, width: "20%" }}
+        onChange={(e) => {
+          setSearch(e.target.value);
+        }}
+      ></input>
       <form onSubmit={HandleEditFormSubmit}>
         <table>
           <thead>
@@ -125,23 +135,34 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {details.map((detail) => (
-              <Fragment>
-                {editDetailId === detail.id ? (
-                  <EditRow
-                    editFormData={editFormData}
-                    HandleEditForm={HandleEditForm}
-                    HandleCancelClick={HandleCancelClick}
-                  />
-                ) : (
-                  <ReadOnlyRow
-                    detail={detail}
-                    HandleEditClick={HandleEditClick}
-                    HandleDeleteClick={HandleDeleteClick}
-                  />
-                )}
-              </Fragment>
-            ))}
+            {details
+              .filter((val) => {
+                if (search === "") {
+                  return val;
+                } else if (
+                  val.fullname.toLowerCase().includes(search.toLowerCase()) ||
+                  val.phoneNumber.toLowerCase().includes(search.toLowerCase())
+                ) {
+                  return val;
+                }
+              })
+              .map((detail) => (
+                <Fragment>
+                  {editDetailId === detail.id ? (
+                    <EditRow
+                      editFormData={editFormData}
+                      HandleEditForm={HandleEditForm}
+                      HandleCancelClick={HandleCancelClick}
+                    />
+                  ) : (
+                    <ReadOnlyRow
+                      detail={detail}
+                      HandleEditClick={HandleEditClick}
+                      HandleDeleteClick={HandleDeleteClick}
+                    />
+                  )}
+                </Fragment>
+              ))}
           </tbody>
         </table>
       </form>
@@ -162,11 +183,12 @@ function App() {
           onChange={HandleAddForm}
         />
         <input
-          type="text"
+          type="number"
           name="phoneNumber"
           required="required"
           placeholder="Enter a Phone Number..."
           onChange={HandleAddForm}
+          maxLength="10"
         />
         <input
           type="text"
